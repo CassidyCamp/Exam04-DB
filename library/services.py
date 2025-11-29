@@ -106,3 +106,26 @@ def update_student_grade(student_id: int, grade: str) -> Student | None:
         session.commit()
     
 
+def borrow_book(student_id: int, book_id: int) -> Borrow | None:
+    """
+    Talabaga kitob berish
+    
+    Quyidagilarni tekshirish kerak:
+    1. Student va Book mavjudligini
+    2. Kitobning is_available=True ekanligini
+    3. Talabada 3 tadan ortiq qaytarilmagan kitob yo'qligini yani 3 tagacha kitob borrow qila oladi
+    
+    Transaction ichida:
+    - Borrow yozuvi yaratish
+    - Book.is_available = False qilish
+    - due_date ni hisoblash (14 kun)
+    
+    Returns:
+        Borrow object yoki None (xatolik bo'lsa)
+    """
+    with get_db() as session:
+        if (
+            session.query(Student).filter(Student.id==student_id) != None and
+            session.query(Book).filter(Book.id==book_id) != None
+        ):
+            brow = Borrow(student_id, book_id)
